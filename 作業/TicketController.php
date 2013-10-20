@@ -278,12 +278,15 @@ class Backend_TicketController extends Base_Controller_Action
                 }
             }
 
+            //販売開始日時の設定
             $startAt = new DateTime(sprintf(
                     '%s %02d:%02d:00',
                     str_replace('/', '-', $this->paramHash['ticketSaleStartAtYmd']),
                     $this->paramHash['ticketSaleStartAtHour'],
                     $this->paramHash['ticketSaleStartAtMinute']
             ));
+            
+            //販売終了日時の設定
             $endAt = new DateTime(sprintf(
                     '%s %02d:%02d:00',
                     str_replace('/', '-', $this->paramHash['ticketSaleEndAtYmd']),
@@ -293,21 +296,49 @@ class Backend_TicketController extends Base_Controller_Action
 
             // 保存データのセット
             $now = new \Datetime();
+            
+            //発行枚数
             $originalQuantity = $ticket->getQuantity();
             $originalStock = $ticket->getTicketStock()->getStock();
             $culcStock = $this->paramHash['quantity']-$originalQuantity+$originalStock;
+          
+            //チケット種別
             $ticket->setName($this->paramHash['name']);
+            
+            //チケット価格
             $ticket->setPrice($this->paramHash['price']);
+            
+            //販売開始時間
             $ticket->setTicketSaleStartAt($startAt);
+            
+            //販売終了時間
             $ticket->setTicketSaleEndAt($endAt);
+            
+            //ステータス
             $ticket->setStatus($this->paramHash['status']);
+            
+            //複数画像モード
             $ticket->setHasMultipleImages($this->paramHash['hasMultipleImages']);
+            
+            //削除
             $ticket->setDeleteFlag($this->paramHash['deleteFlag']);
+            
+            //販売枚数
             $ticket->setQuantity($this->paramHash['quantity']);
+            
+            //購入上限枚数
             $ticket->setBuyMaxLimit($this->paramHash['buyMaxLimit']);
+            
+            //注意文言
             $ticket->setNoticeDescription($this->paramHash['noticeDescription']);
+            
+            //背面広告URL
             $ticket->setBackAdUrl($backAdUrl);
+            
+            //更新日時
             $ticket->setUpdatedAt($now);
+            
+            //更新者
             $ticket->setUpdatedBy($this->auth->uid);
             $ticketStock = $ticket->getTicketStock();
             $ticketStock->setStock($culcStock);
