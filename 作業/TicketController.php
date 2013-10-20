@@ -1,3 +1,4 @@
+
 <?php
 
 require_once 'BaseController.php';
@@ -12,67 +13,64 @@ require_once 'BaseController.php';
 class Backend_TicketController extends Base_Controller_Action
 {
      /**
-     * ‰Šú‰»
+     * åˆæœŸåŒ–
      */
     public function init()
     {
-       // BaseŒp³
+       // Baseç¶™æ‰¿
        parent::init();
-       // ‰æ‘œ—p
+       // ç”»åƒç”¨
        $contextSwitch = $this->_helper->getHelper('contextSwitch');
        $contextSwitch->addActionContext('tmp-upload-image', 'xml')->initContext('xml');
     }
 
     /**
-     * ƒAƒNƒVƒ‡ƒ“‘Oˆ—
+     * ã‚¢ã‚¯ã‚·ãƒ§ãƒ³å‰å‡¦ç†
      *
-     * ƒAƒNƒVƒ‡ƒ“Às‘O‚ÉŒÄ‚Ño‚³‚ê‚éB
+     * ã‚¢ã‚¯ã‚·ãƒ§ãƒ³å®Ÿè¡Œå‰ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚
      *
      * @access public
      */
     public function preDispatch() {
 
-        // BaseŒp³
+        // Baseç¶™æ‰¿
         parent::preDispatch();
 
         if(isset($this->paramHash['userId'])){
-                // ƒTƒuƒƒjƒ…[‚ÌƒZƒbƒg
+                // ã‚µãƒ–ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®ã‚»ãƒƒãƒˆ
                 $this->view->submenu = 'user-submenu.phtml';
-        }
-        elseif(isset($this->paramHash['ticketId'])) {
-        	$this->view->submenu = 'ticket-submenu.phtml';
         }
     }
 
      /**
-     * ƒ`ƒPƒbƒgî•ñŒŸõ
+     * ãƒã‚±ãƒƒãƒˆæƒ…å ±æ¤œç´¢
      */
     public function indexAction()
     {
-        // ƒ`ƒPƒbƒgî•ñ‰Šú‰»
+        // ãƒã‚±ãƒƒãƒˆæƒ…å ±åˆæœŸåŒ–
         $tickets = array();
 
         $currentPage = '';
 
         $getParam = '';
 
-        // ƒtƒH[ƒ€‚ğƒZƒbƒg‚·‚é
+        // ãƒ•ã‚©ãƒ¼ãƒ ã‚’ã‚»ãƒƒãƒˆã™ã‚‹
         $form = $this->_createZendFormIni($this->request->getActionName());
 
         $ticketQueryBuilder = $this->_em->getRepository('Ticket')->createQueryBuilder('t');
         $ticketQueryBuilder->leftjoin('t.event' ,'e');
 
-        // ƒZƒbƒVƒ‡ƒ“‚Ìæ“¾
+        // ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®å–å¾—
         $backendTicketSearch = new Zend_Session_Namespace('backendTicketSearch');
 
         if(isset($backendTicketSearch->postHash) && $this->request->isGet()){
 
             if(isset($this->paramHash['s']) && $this->paramHash['s'] == 'clear'){
 
-                // ƒZƒbƒVƒ‡ƒ“”jŠü
+                // ã‚»ãƒƒã‚·ãƒ§ãƒ³ç ´æ£„
                 unset($backendTicketSearch->postHash);
             }else{
-                // ƒZƒbƒVƒ‡ƒ“î•ñ‚Ìæ“¾
+                // ã‚»ãƒƒã‚·ãƒ§ãƒ³æƒ…å ±ã®å–å¾—
                 $this->postHash = $backendTicketSearch->postHash;
             }
         }
@@ -80,31 +78,31 @@ class Backend_TicketController extends Base_Controller_Action
         // POST
         if(!empty($this->postHash) and $form->isValid($this->postHash)){
 
-            // ƒXƒe[ƒ^ƒXŒŸõğŒ
+            // ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹æ¤œç´¢æ¡ä»¶
             $checkStatus = array();
 
-            // Œ»İ
+            // ç¾åœ¨æ™‚åˆ»
             $time = new Datetime();
 
-            // ƒ`ƒPƒbƒgID
+            // ãƒã‚±ãƒƒãƒˆID
             if(!empty($this->postHash['id'])){
                 $ticketQueryBuilder->andWhere('t.id = ?1');
                 $ticketQueryBuilder->setParameter(1, $this->postHash['id']);
             }
 
-            // ƒCƒxƒ“ƒgID
+            // ã‚¤ãƒ™ãƒ³ãƒˆID
             if(!empty($this->postHash['eventName'])){
                 $ticketQueryBuilder->andWhere('e.name like ?2');
                 $ticketQueryBuilder->setParameter(2, '%' . $this->postHash['eventName'] . '%');
             }
 
-            // ƒ`ƒPƒbƒgí•Ê
+            // ãƒã‚±ãƒƒãƒˆç¨®åˆ¥
             if(!empty($this->postHash['name'])){
                 $ticketQueryBuilder->andWhere('t.name like ?3');
                 $ticketQueryBuilder->setParameter(3, '%' . $this->postHash['name'] . '%');
             }
 
-            // ƒ`ƒPƒbƒgí•Ê
+            // ãƒã‚±ãƒƒãƒˆç¨®åˆ¥
             if(!empty($this->postHash['lowPrice']) && !empty($this->postHash['hiPrice'])){
                 $ticketQueryBuilder->andWhere('t.price between ?4 AND ?5');
                 $ticketQueryBuilder->setParameter(4, $this->postHash['lowPrice']);
@@ -123,24 +121,24 @@ class Backend_TicketController extends Base_Controller_Action
                 $ticketQueryBuilder->setParameter(6, str_replace('/', '-', $this->paramHash['saleAt']));
             }
 
-             // –¢”Ì”„
+             // æœªè²©å£²
             if (!empty($this->postHash['unSaleTicket'])){
                 $checkStatus[] = 't.ticketSaleStartAt > ?8';
                 $ticketQueryBuilder->setParameter(8, $time->format('Y-m-d H:i:s'));
             }
 
-            // ”Ì”„’†
+            // è²©å£²ä¸­
             if (!empty($this->postHash['saleTicket'])){
                 $checkStatus[] = 't.ticketSaleStartAt <= ?9 ANd t.ticketSaleEndAt >= ?9';
                 $ticketQueryBuilder->setParameter(9, $time->format('Y-m-d H:i:s'));
             }
-            // I—¹
+            // çµ‚äº†
             if (!empty($this->postHash['endSaleTicket'])){
                 $checkStatus[] = 't.ticketSaleEndAt < ?10';
                 $ticketQueryBuilder->setParameter(10, $time->format('Y-m-d H:i:s'));
             }
 
-            // ƒ`ƒPƒbƒgƒXƒe[ƒ^ƒX
+            // ãƒã‚±ãƒƒãƒˆã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹
             if (!empty($this->postHash['ticketStyle'])){
 
                 if($this->postHash['ticketStyle'] == 1){
@@ -152,7 +150,7 @@ class Backend_TicketController extends Base_Controller_Action
                 }
             }
 
-            // ƒXƒe[ƒ^ƒX
+            // ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹
             if (!empty($this->postHash['status'])){
 
                 if($this->postHash['status'] == 1){
@@ -164,7 +162,7 @@ class Backend_TicketController extends Base_Controller_Action
                 }
             }
 
-            // íœƒXƒe[ƒ^ƒX
+            // å‰Šé™¤ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹
             if (!empty($this->postHash['deleteFlag'])){
 
                 if($this->postHash['deleteFlag'] == 1){
@@ -176,44 +174,44 @@ class Backend_TicketController extends Base_Controller_Action
                 }
             }
 
-            // ƒXƒe[ƒ^ƒXğŒ‚ğwhere‚É’Ç‰Á
+            // ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹æ¡ä»¶ã‚’whereã«è¿½åŠ 
             if (!empty($checkStatus)){
                 $ticketQueryBuilder->andWhere(implode(' OR ', $checkStatus));
             }
 
-            // ƒZƒbƒVƒ‡ƒ“î•ñ‚Ì•Û‘¶
+            // ã‚»ãƒƒã‚·ãƒ§ãƒ³æƒ…å ±ã®ä¿å­˜
             $backendTicketSearch = new Zend_Session_Namespace('backendTicketSearch');
             $backendTicketSearch->postHash =  $this->postHash;
         }
 
         $ticketQueryBuilder->orderBy('e.name', 'ASC');
 
-        // ƒ`ƒPƒbƒgî•ñ‚ğæ“¾‚·‚é
+        // ãƒã‚±ãƒƒãƒˆæƒ…å ±ã‚’å–å¾—ã™ã‚‹
         $tickets = $ticketQueryBuilder->getQuery()->getResult();
 
-        // view‚Ö‚ÌƒZƒbƒg(ƒ`ƒPƒbƒgî•ñ)
+        // viewã¸ã®ã‚»ãƒƒãƒˆ(ãƒã‚±ãƒƒãƒˆæƒ…å ±)
         $this->view->tickets = $tickets;
 
         if(isset($this->paramHash['page'])){
             $currentPage = $this->paramHash['page'];
         }
-        // paginate‚ÌƒZƒbƒg
+        // paginateã®ã‚»ãƒƒãƒˆ
         $this->setPaginate($tickets ,10 ,$currentPage ,$getParam);
 
-        // view‚Ö‚ÌƒZƒbƒg
+        // viewã¸ã®ã‚»ãƒƒãƒˆ
         $this->view->form = $form;
         $this->view->title = $this->_title[$this->actionName]['success'];
     }
 
     /**
-     * ƒ`ƒPƒbƒg•ÒW
+     * ãƒã‚±ãƒƒãƒˆç·¨é›†
      */
     function editAction(){
         $ticket = $this->_em->getRepository('Ticket')
         ->findOneBy(array('id' => $this->paramHash['ticketId'], 'deleteFlag' => '0'));
         
         if (empty($ticket)){
-            $e =  new Exception('<br />Eƒ`ƒPƒbƒgî•ñ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ');
+            $e =  new Exception('<br />ãƒ»ãƒã‚±ãƒƒãƒˆæƒ…å ±ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“');
             $this->_errorMessages['title'] = $this->_title[$this->actionName]['error'];
             $this->_errorMessages['main'][] = sprintf('<p>%s</p>', $e->getMessage());
             $this->view->title = $this->_title[$this->actionName]['error'];
@@ -221,10 +219,10 @@ class Backend_TicketController extends Base_Controller_Action
             throw $e;
         }
         
-        // ƒtƒH[ƒ€‚ğƒZƒbƒg‚·‚é
+        // ãƒ•ã‚©ãƒ¼ãƒ ã‚’ã‚»ãƒƒãƒˆã™ã‚‹
         $form = $this->_createZendFormIni($this->actionName);
         
-        // ƒRƒ“ƒrƒjŒˆÏ‚Åw“ü‚³‚ê‚½Šù‘¶ƒ`ƒPƒbƒg‚Ì‚¤‚¿A“ü‹à‰Â”\ŠúŠÔ“à‚Å–¢“ü‹à‚Ìƒ`ƒPƒbƒg‚Ì”‚ğæ“¾B
+        // ã‚³ãƒ³ãƒ“ãƒ‹æ±ºæ¸ˆã§è³¼å…¥ã•ã‚ŒãŸæ—¢å­˜ãƒã‚±ãƒƒãƒˆã®ã†ã¡ã€å…¥é‡‘å¯èƒ½æœŸé–“å†…ã§æœªå…¥é‡‘ã®ãƒã‚±ãƒƒãƒˆã®æ•°ã‚’å–å¾—ã€‚
         $nowDateTime = new DateTime();
         $ticketEventCount = $this->_em->getRepository('TicketEvent')->createQueryBuilder('te')
         ->select('count(sc)')
@@ -232,7 +230,6 @@ class Backend_TicketController extends Base_Controller_Action
         ->leftJoin('te.settlementEvent', 'se')
         ->leftJoin('se.settlementConvenience', 'sc')
         ->andWhere('t.id = ?1')
-        
         ->andWhere('sc.paymentStatus IS NULL')
         ->andWhere('sc.expiryDate >= ?2')
         ->andWhere('te.deleteFlag >= ?3')
@@ -242,33 +239,32 @@ class Backend_TicketController extends Base_Controller_Action
         ->getQuery()
         ->getSingleScalarResult();
         
-        // w“üÏƒ`ƒPƒbƒg‚ª‚ ‚éê‡‚àƒ`ƒPƒbƒgî•ñ‚ğ•ÒW‚Å‚«‚é‚æ‚¤‚Éd—l•ÏX
-        
-        // w“üÏƒ`ƒPƒbƒg‚ª‚ ‚éê‡A•ÒW‚Å‚«‚È‚­‚·‚é
-        //if($ticket->getQuantity() != $ticket->getTicketStock()->getStock() or $ticketEventCount > 0){
+        // è³¼å…¥æ¸ˆãƒã‚±ãƒƒãƒˆãŒã‚ã‚‹å ´åˆã‚‚ãƒã‚±ãƒƒãƒˆæƒ…å ±ã‚’ç·¨é›†ã§ãã‚‹ã‚ˆã†ã«ä»•æ§˜å¤‰æ›´
+        /*
+        // è³¼å…¥æ¸ˆãƒã‚±ãƒƒãƒˆãŒã‚ã‚‹å ´åˆã€ç·¨é›†ã§ããªãã™ã‚‹
+        if($ticket->getQuantity() != $ticket->getTicketStock()->getStock() or $ticketEventCount > 0){
 
-          //  $this->view->editFlag = true;
-            //return true;
-        //}
-        
+            $this->view->editFlag = true;
+            return true;
+        }
+        */
 
-        // POST’l‚ªƒZƒbƒg‚³‚ê‚Ä‚¢‚ÄAvalidateƒNƒŠƒA
+        // POSTå€¤ãŒã‚»ãƒƒãƒˆã•ã‚Œã¦ã„ã¦ã€validateã‚¯ãƒªã‚¢
         if($this->request->isPost() && $form->isValidPartial($this->paramHash)){
             /**
-             * ”w–ÊLURL‚ÌƒoƒŠƒf[ƒVƒ‡ƒ“ added by matsui
+             * èƒŒé¢åºƒå‘ŠURLã®ãƒãƒªãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³ added by matsui
              *
-             * http://‚Ü‚½‚Íhttps://‚Ån‚Ü‚éURL‚Ån‚Ü‚é•¶š—ñ
-             * ‚à‚µ‚­‚Í‹ó•¶š‚Å‚ ‚ê‚Î‹–—e‚·‚é
+             * http://ã¾ãŸã¯https://ã§å§‹ã¾ã‚‹URLã§å§‹ã¾ã‚‹æ–‡å­—åˆ—
+             * ã‚‚ã—ãã¯ç©ºæ–‡å­—ã§ã‚ã‚Œã°è¨±å®¹ã™ã‚‹
              */
-    
             $backAdUrl = $this->paramHash['backAdUrl'];
             if (!preg_match('/^https?:\/\/.+/i', $backAdUrl)) {
                 if (empty($backAdUrl)) {
-                    // ‹ó•¶šorNULL‚Í‹–—e‚·‚é
+                    // ç©ºæ–‡å­—orNULLã¯è¨±å®¹ã™ã‚‹
                     $backAdUrl = "";
                 }
                 else {
-                    throw new Exception("•s³‚ÈURL‚Å‚·Bhttp://‚Ü‚½‚Íhttps://‚Ån‚Ü‚éURL‚Ì‚İ“o˜^‰Â”\‚Å‚·");
+                    throw new Exception("ä¸æ­£ãªURLã§ã™ã€‚http://ã¾ãŸã¯https://ã§å§‹ã¾ã‚‹URLã®ã¿ç™»éŒ²å¯èƒ½ã§ã™");
                 }
             }
 
@@ -284,13 +280,12 @@ class Backend_TicketController extends Base_Controller_Action
                     $this->paramHash['ticketSaleEndAtHour'],
                     $this->paramHash['ticketSaleEndAtMinute']
             ));
-			
-            // •Û‘¶ƒf[ƒ^‚ÌƒZƒbƒg
+
+            // ä¿å­˜ãƒ‡ãƒ¼ã‚¿ã®ã‚»ãƒƒãƒˆ
             $now = new \Datetime();
             $originalQuantity = $ticket->getQuantity();
             $originalStock = $ticket->getTicketStock()->getStock();
             $culcStock = $this->paramHash['quantity']-$originalQuantity+$originalStock;
-            // ƒf[ƒ^XV
             $ticket->setName($this->paramHash['name']);
             $ticket->setPrice($this->paramHash['price']);
             $ticket->setTicketSaleStartAt($startAt);
@@ -307,25 +302,25 @@ class Backend_TicketController extends Base_Controller_Action
             $ticketStock = $ticket->getTicketStock();
             $ticketStock->setStock($culcStock);
 
-            // ƒfƒUƒCƒ“ƒ`ƒPƒbƒg‰æ‘œ‚Ì“o˜^
+            // ãƒ‡ã‚¶ã‚¤ãƒ³ãƒã‚±ãƒƒãƒˆç”»åƒã®ç™»éŒ²
             $frontImageId = $this->paramHash['frontImageId'];
             if (!empty($frontImageId) && $frontImageId > 0) {
                 $this->_saveImage($ticket, $frontImageId, '2', $this->auth->uid, false);
             }
 
-            // ƒfƒUƒCƒ“ƒ`ƒPƒbƒg‰æ‘œ‚Ì“o˜^
+            // ãƒ‡ã‚¶ã‚¤ãƒ³ãƒã‚±ãƒƒãƒˆç”»åƒã®ç™»éŒ²
             $backImageId = $this->paramHash['backImageId'];
             if (!empty($backImageId) && $backImageId > 0) {
                 $this->_saveImage($ticket, $backImageId, '3', $this->auth->uid, false);
             }
 
-            // •¡”‰æ‘œƒƒbƒN‰æ‘œ‚Ì“o˜^
+            // è¤‡æ•°ç”»åƒæ™‚ãƒ­ãƒƒã‚¯ç”»åƒã®ç™»éŒ²
             $lockImageId = $this->paramHash['lockImageId'];
             if (!empty($lockImageId) && $lockImageId > 0) {
                 $this->_saveImage($ticket, $lockImageId, '4', $this->auth->uid, false);
             }
-			
-            // ‰½ŒÂ–Ú‚Ìƒf[ƒ^‚©
+
+            // ä½•å€‹ç›®ã®ãƒ‡ãƒ¼ã‚¿ã‹
             $no = 0;
             foreach($this->paramHash as $name => $atom){
                if( !preg_match( '/backImageId/' ,$name )){ continue; }
@@ -336,73 +331,45 @@ class Backend_TicketController extends Base_Controller_Action
                $no++;
             }
             
-            $this->_em->persist($ticket); // persistˆ—‚Ì‚¨‚Ü‚¶‚È‚¢
+            $this->_em->persist($ticket); // persistå‡¦ç†ã®ãŠã¾ã˜ãªã„
             $this->_em->persist($ticketStock);
-            $this->_em->flush(); // DB”½‰f(ÀÛ‚Ìupdate)
+            $this->_em->flush(); // DBåæ˜ (å®Ÿéš›ã®update)
             
-            // Š®—¹ƒƒbƒZ[ƒW‚ÌƒZƒbƒg
+            // å®Œäº†ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ã‚»ãƒƒãƒˆ
             $this->view->completeMessage = $this->viewMessages['complete']['edit'];
-            // ‰æ‘œæ“¾—pXV“ú
+            // ç”»åƒå–å¾—ç”¨æ›´æ–°æ—¥æ™‚
             $updatedAt = $ticket->getUpdatedAt();
             if (empty($updatedAt))
                 $updatedAt = $ticket->getCreatedAt();
             $this->view->assign('ticketUpdatedAt', $updatedAt);
             
-            
-            
-            // •\‰æ‘œ‘¶İæ“¾A
-            /*
+            // ç”»åƒå­˜åœ¨å–å¾—
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
                     'type'=> '2',
                     'deleteFlag' => '0'));
             $frontImageId = (empty($image))? '' : $image->getId();
-            */
-            $ti = $this->_em->getRepository('TicketImages');
-            $image = $ti->findOneBy(array(
-            		'ticket' => $ticket->getId(),
-            		'type'=> '2',
-            		'deleteFlag' => '0'));
-            $frontImageId = (empty($image))? '' : $image->getId();
-          
-            // — ‰æ‘œ‘¶İæ“¾
-            /*
+            
+            // ç”»åƒå­˜åœ¨å–å¾—
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
-                    'type'=> '3',
+                    'type'=> '2',
                     'deleteFlag' => '0'));
             $backImageId = (empty($image))? '' : $image->getId();
-			*/
-            $image = $ti->findOneBy(array(
-            		'ticket' => $ticket->getId(),
-            		'type'=> '3',
-            		'deleteFlag' => '0'));
-            $backImageId = (empty($image))? '' : $image->getId();
 
-            // ƒƒbƒN‰æ‘œ‘¶İæ“¾
-            /*
+            // ç”»åƒå­˜åœ¨å–å¾—
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
                     'type'=> '4',
                     'deleteFlag' => '0'));
             $lockImageId = (empty($image))? '' : $image->getId();
-			*/
-            $image = $ti->findOneBy(array(
-            		'ticket' => $ticket->getId(),
-            		'type'=> '4',
-            		'deleteFlag' => '0'));
-            $lockImageId = (empty($image))? '' : $image->getId();
 
-            // ƒRƒŒƒNƒVƒ‡ƒ“‰æ‘œ
-            $ti = $this->_em->getRepository('TicketCollectionImage');
-            $images = $ti->findOneBy(array(
-            		'ticket' => $ticket->getId(),
-            		));
-            /*
+
+            // èƒŒæ™¯ç”»åƒ
             $images = $this->_em->getRepository('TicketCollectionImage')->findBy(array(
                     'ticket' => $ticket->getId(),
                     ));
-			*/
+
             $backImageIds = array();
             foreach($images as $atom){
                 array_push($backImageIds, $atom);
@@ -412,14 +379,13 @@ class Backend_TicketController extends Base_Controller_Action
             $this->view->assign('backImageId', $backImageId);
             $this->view->assign('lockImageId', $lockImageId);
             $this->view->assign('backImageIds', $backImageIds);
-            
-            // ˆê•Û‘¶‰æ‘œ‚ÌcŠ[‚ğc‚³‚È‚¢‚½‚ßƒtƒH[ƒ€‚ğC³‚·‚é
+            // ä¸€æ™‚ä¿å­˜ç”»åƒã®æ®‹éª¸ã‚’æ®‹ã•ãªã„ãŸã‚ãƒ•ã‚©ãƒ¼ãƒ ã‚’ä¿®æ­£ã™ã‚‹
             $defaulutHash = $this->paramHash;
             $defaultHash['frontImageId'] = null;
             $defaultHash['backImageId'] = null;
             $form->setDefaults($defaultHash);
         }elseif($this->request->isGet()){
-            // ‰‰ñƒAƒNƒZƒX‚Éƒ`ƒPƒbƒgî•ñ‚ª‚ ‚ê‚Î“Ç‚İo‚µ‚ÄƒfƒtƒHƒ‹ƒg’l‚Æ‚·‚é
+            // åˆå›ã‚¢ã‚¯ã‚»ã‚¹æ™‚ã«ãƒã‚±ãƒƒãƒˆæƒ…å ±ãŒã‚ã‚Œã°èª­ã¿å‡ºã—ã¦ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã¨ã™ã‚‹
             $defaultHash = array();
             $defaultHash['name'] = $ticket->getName();
             $defaultHash['price'] = $ticket->getPrice();
@@ -441,67 +407,45 @@ class Backend_TicketController extends Base_Controller_Action
             }
             $defaultHash['backAdUrl'] = $backAdUrl;
             
-            // ƒfƒtƒHƒ‹ƒg’l‚ÌƒZƒbƒg
+            // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã®ã‚»ãƒƒãƒˆ
             $form->setDefaults($defaultHash);
             
-            // ‰æ‘œæ“¾—pXV“ú
+            // ç”»åƒå–å¾—ç”¨æ›´æ–°æ—¥æ™‚
             $updatedAt = $ticket->getUpdatedAt();
             if (empty($updatedAt))
                 $updatedAt = $ticket->getCreatedAt();
             $this->view->assign('ticketUpdatedAt', $updatedAt);
             
-            // •\‰æ‘œ‘¶İæ“¾
-            /*
+            // ç”»åƒå­˜åœ¨å–å¾—
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
                     'type'=> '2',
                     'deleteFlag' => '0'));
             $frontImageId = (empty($image))? '' : $image->getId();
-			*/
-            $ti = $this->_em->getRepository('TicketCollectionImage');
-            $images = $ti->findOneBy(array(
-            		'ticket' => $ticket->getId(),
-            ));
-            $backImageIds = array();
-            foreach($images as $atom){
-            	array_push($backImageIds, $atom);
-            }
             
-            
-            /*
-            // — ‰æ‘œ‘¶İæ“¾
+            // ç”»åƒå­˜åœ¨å–å¾—
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
                     'type'=> '3',
                     'deleteFlag' => '0'));
             $backImageId = (empty($image))? '' : $image->getId();
-			*/
-            $image = $ti->findOneBy(array(
-            		'ticket' => $ticket->getId(),
-            		'type'=> '3',
-            		'deleteFlag' => '0'));
-            /*
-            // ƒƒbƒN‰æ‘œ‘¶İæ“¾
+
+            // ç”»åƒå­˜åœ¨å–å¾—
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
                     'type'=> '4',
                     'deleteFlag' => '0'));
             $lockImageId = (empty($image))? '' : $image->getId();
-			*/
-            $image = $ti->findOneBy(array(
-            		'ticket' => $ticket->getId(),
-            		'type'=> '4',
-            		'deleteFlag' => '0'));
-            
-            $images = $ti->findOneBy(array(
-            		'ticket' => $ticket->getId(),
-            ));
+
+            // èƒŒæ™¯ç”»åƒ
+            $images = $this->_em->getRepository('TicketCollectionImage')->findBy(array(
+                    'ticket' => $ticket->getId(),
+                    ));
+
             $backImageIds = array();
             foreach($images as $atom){
-            	array_push($backImageIds, $atom);
+                array_push($backImageIds, $atom);
             }
-			
-
 
             $backImageId = (empty($image))? '' : $image->getId();
             $this->view->assign('frontImageId', $frontImageId);
@@ -509,8 +453,8 @@ class Backend_TicketController extends Base_Controller_Action
             $this->view->assign('lockImageId', $lockImageId);
             $this->view->assign('backImageIds', $backImageIds);
         }
-		
-        // view‚Ö‚ÌƒZƒbƒg
+
+        // viewã¸ã®ã‚»ãƒƒãƒˆ
         $this->view->form = $form;
         $this->view->ticketId = $this->paramHash['ticketId'];
         $this->view->title = $this->_title[$this->actionName]['success'];
@@ -518,14 +462,14 @@ class Backend_TicketController extends Base_Controller_Action
 
 
     /**
-     * ƒ`ƒPƒbƒgî•ñÚ×
+     * ãƒã‚±ãƒƒãƒˆæƒ…å ±è©³ç´°
      */
     function detailAction(){
 
         $ticket = $this->_em->getRepository('Ticket')->findOneBy(array('id' => $this->paramHash['ticketId']));
 
         if (empty($ticket)){
-            $e =  new Exception('<br />Eƒ`ƒPƒbƒgî•ñ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ');
+            $e =  new Exception('<br />ãƒ»ãƒã‚±ãƒƒãƒˆæƒ…å ±ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“');
             $this->_errorMessages['title'] = $this->_title[$this->actionName]['error'];
             $this->_errorMessages['main'][] = sprintf('<p>%s</p>', $e->getMessage());
             $this->view->title = $this->_title[$this->actionName]['error'];
@@ -535,7 +479,7 @@ class Backend_TicketController extends Base_Controller_Action
 
         $this->view->ticket = $ticket;
         $this->view->title = $this->_title[$this->actionName]['success'];
-        // ‰æ‘œæ“¾—pXV“ú
+        // ç”»åƒå–å¾—ç”¨æ›´æ–°æ—¥æ™‚
         $updatedAt = $ticket->getUpdatedAt();
         if (empty($updatedAt))
             $updatedAt = $ticket->getCreatedAt();
@@ -556,9 +500,8 @@ class Backend_TicketController extends Base_Controller_Action
     }
 
     /**
-     * ƒ`ƒPƒbƒg‰æ‘œ’ñ‹Ÿ
+     * ãƒã‚±ãƒƒãƒˆç”»åƒæä¾›
      */
-    
     public function imageAction() {
         try{
             //$this->_helper->layout->disableLayout();
@@ -569,23 +512,23 @@ class Backend_TicketController extends Base_Controller_Action
             $req = $this->getRequest();
             $params = $req->getParams();
             
-           // ƒCƒxƒ“ƒgid‚Ìæ“¾
+           // ã‚¤ãƒ™ãƒ³ãƒˆidã®å–å¾—
             $id = $params['ticketId'];
             if(empty($id))
-                throw new Exception('ƒ`ƒPƒbƒg‚Ì“Á’è‚ªo—ˆ‚Ü‚¹‚ñB');
+                throw new Exception('ãƒã‚±ãƒƒãƒˆã®ç‰¹å®šãŒå‡ºæ¥ã¾ã›ã‚“ã€‚');
             
             $type = $req->getParam('type');
-            // 1: ƒƒCƒ“‰æ‘œ(–¢g—p)
-            // 2: ‚à‚¬‚è‘O‰æ‘œ
-            // 3: ‚à‚¬‚èŒã‰æ‘œ 
+            // 1: ãƒ¡ã‚¤ãƒ³ç”»åƒ(æœªä½¿ç”¨)
+            // 2: ã‚‚ãã‚Šå‰ç”»åƒ
+            // 3: ã‚‚ãã‚Šå¾Œç”»åƒ 
             if ($type != 1 && $type != 2 && $type != 3)
-                throw new Exception('‰æ‘œƒ^ƒCƒv‚Ì“Á’è‚ª‚Å‚«‚Ü‚¹‚ñB');
+                throw new Exception('ç”»åƒã‚¿ã‚¤ãƒ—ã®ç‰¹å®šãŒã§ãã¾ã›ã‚“ã€‚');
                         
             $width = $req->getParam('width');
             if(empty($width) || $width > 640)
-                throw new Exception('‰æ‘œƒTƒCƒY‚Ì“Á’è‚ªo—ˆ‚Ü‚¹‚ñB'); // ƒŠƒtƒ@ƒNƒ^ƒŠƒ“ƒO-ƒƒCƒ“‰æ‘œÅ‘åƒTƒCƒY‚ÅƒuƒƒbƒN
+                throw new Exception('ç”»åƒã‚µã‚¤ã‚ºã®ç‰¹å®šãŒå‡ºæ¥ã¾ã›ã‚“ã€‚'); // ãƒªãƒ•ã‚¡ã‚¯ã‚¿ãƒªãƒ³ã‚°-ãƒ¡ã‚¤ãƒ³ç”»åƒæœ€å¤§ã‚µã‚¤ã‚ºã§ãƒ–ãƒ­ãƒƒã‚¯
             
-            // ‰æ‘œæ“¾
+            // ç”»åƒå–å¾—
             if($type == 2){
                 $image = $this->_em->getRepository('TicketImages')
                 ->findOneBy(array('ticket' => $id,'type'=> $type, 'deleteFlag' => '0'));
@@ -597,10 +540,6 @@ class Backend_TicketController extends Base_Controller_Action
                 ->findOneBy(array('ticket' => $id,'type'=> $type, 'deleteFlag' => '0'));
             }
             
-            // ‰æ‘œæ“¾
-            $image = $this->_em->getRepository('TicketImages')
-            ->findOneBy(array('ticket' => $id,'type'=> $type, 'deleteFlag' => '0'));
-            
             if(!empty($image)){
                 $blob = $image->getData();
                 $editor = new Tixee_Image_Editor($blob, Tixee_Image_Editor::BLOB);
@@ -608,23 +547,23 @@ class Backend_TicketController extends Base_Controller_Action
                 $imageData = $editor->getImageBlob();
             }
             else {
-                // ‰æ‘œ‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡‚Í‰æ‘œ‚Ç‚¤‚·‚é‚©—vŒŸ“¢
+                // ç”»åƒãŒè¦‹ã¤ã‹ã‚‰ãªã„å ´åˆã¯ç”»åƒã©ã†ã™ã‚‹ã‹è¦æ¤œè¨
                    
 //                     $defaultImagePath;
 //                     switch($type){
 //                         case '1':
-//                             // ƒƒCƒ“‰æ‘œ
+//                             // ãƒ¡ã‚¤ãƒ³ç”»åƒ
 //                             $defaultImagePath = APPLICATION_PATH. "/configs/image/material/event/$type".".png";
 //                             break;
 //                         default:
-//                             throw new Exception("•s³‚È‰æ‘œƒ^ƒCƒv‚ÌƒŠƒNƒGƒXƒg‚Å‚·B");
+//                             throw new Exception("ä¸æ­£ãªç”»åƒã‚¿ã‚¤ãƒ—ã®ãƒªã‚¯ã‚¨ã‚¹ãƒˆã§ã™ã€‚");
 //                     }
 //                     $editor = new Tixee_Image_Editor($defaultImagePath);
 //                     $editor->resizeWidth($width);
 //                     $imageData = $editor->getImageBlob();
             }
             
-            // ƒŒƒXƒ|ƒ“ƒXƒIƒuƒWƒFƒNƒg‚Ìİ’è
+            // ãƒ¬ã‚¹ãƒãƒ³ã‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¨­å®š
             $this->getResponse()
             ->setHeader('Content-Type', 'image/png')
             ->setHeader('Content-Length', strlen($imageData))
@@ -632,45 +571,36 @@ class Backend_TicketController extends Base_Controller_Action
             ->appendBody($imageData);
         } catch (Exception $e) {
             
-            // ƒŠƒtƒ@ƒNƒ^ƒŠƒ“ƒO-‰æ–Ê‚ÉƒAƒEƒgƒvƒbƒg‚Í‚µ‚È‚¢‚Ì‚ÅA“KØ‚ÈƒGƒ‰[Œ´ˆö‚ÌƒƒMƒ“ƒO
+            // ãƒªãƒ•ã‚¡ã‚¯ã‚¿ãƒªãƒ³ã‚°-ç”»é¢ã«ã‚¢ã‚¦ãƒˆãƒ—ãƒƒãƒˆã¯ã—ãªã„ã®ã§ã€é©åˆ‡ãªã‚¨ãƒ©ãƒ¼åŸå› ã®ãƒ­ã‚®ãƒ³ã‚°
             $this->_errorMessages['title'] = $this->_title[$req->getActionName()]['error'];
             $this->_errorMessages['main'][] = sprintf('<p>%s</p>', $e->getMessage());
             $this->view->assign('errorMessages', $this->_errorMessages);
             throw $e;
         }
     }
-
-
-   
     
-    	
-    	
     /**
-     * ƒ`ƒPƒbƒg‰æ‘œ“o˜^
+     * ãƒã‚±ãƒƒãƒˆç”»åƒç™»éŒ²
      */
-    
     public function tmpUploadImageAction() {
         $imageId = 0;
         $type = 0;
         $src = "";
         $retval = $this->_codeConf->failed;
-      
+        
         try {
             $front = Zend_Controller_Front::getInstance();
             $front->getPlugin('Zend_Layout_Controller_Plugin_Layout')->getLayout()->disableLayout();
-          
-            // ƒpƒ‰ƒ[ƒ^æ“¾
+            
+            // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿å–å¾—
             $req = $this->getRequest();
             $params = $req->getParams();
             $type = $params["type"];
             $lastImageId = null;
-
-
             switch ($type) {
                 case 2:
                     $lastImageId = $params["frontImageId"];
                     break;
-                    /*
                 case 3:
                     foreach($params as $key => $val){
                        if( preg_match('/backImageId/', $key)){
@@ -679,61 +609,55 @@ class Backend_TicketController extends Base_Controller_Action
                        }
                     }
                     break;
-*/
-                case 4:
-                  	$lastImageId = $params["lockImageId"];
-                   	break;
                 default:
                     break;
             }
-
-            if(empty($this->auth->uid))
-                throw new Exception('ƒ†[ƒU[‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB', $this->_codeConf->invalid_access);
             
-            // ƒtƒ@ƒCƒ‹‚Ìæ“¾
+            if(empty($this->auth->uid))
+                throw new Exception('ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚', $this->_codeConf->invalid_access);
+            
+            // ãƒ•ã‚¡ã‚¤ãƒ«ã®å–å¾—
             $upload = new Zend_File_Transfer();
             $files = $upload->getFileInfo();
             
-            // ƒAƒbƒv‰Â”\‚Èƒtƒ@ƒCƒ‹‚Í1‚Â
+            // ã‚¢ãƒƒãƒ—å¯èƒ½ãªãƒ•ã‚¡ã‚¤ãƒ«ã¯1ã¤
             if(1 != count($files))
-
-                throw new Exception('ƒtƒ@ƒCƒ‹‚ÌƒAƒbƒvƒ[ƒh‚É¸”s‚µ‚Ü‚µ‚½B', $this->_codeConf->invalid_access);
+                throw new Exception('ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã«å¤±æ•—ã—ã¾ã—ãŸã€‚', $this->_codeConf->invalid_access);
             
             $tempImage = null;
             foreach($files as $file => $info){
-                // ‰æ–Ê‚©‚çƒAƒbƒvƒ[ƒh‚³‚ê‚½ƒtƒ@ƒCƒ‹ˆÈŠO‚Í‹–‰Â‚µ‚È‚¢B
+                // ç”»é¢ã‹ã‚‰ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã•ã‚ŒãŸãƒ•ã‚¡ã‚¤ãƒ«ä»¥å¤–ã¯è¨±å¯ã—ãªã„ã€‚
                 if(!$upload->isUploaded($file))
-                    throw new Exception('•s³‚ÈƒAƒbƒvƒ[ƒhsˆ×‚Å‚·B', $this->_codeConf->invalid_access);
+                    throw new Exception('ä¸æ­£ãªã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰è¡Œç‚ºã§ã™ã€‚', $this->_codeConf->invalid_access);
                 
-                // ƒoƒŠƒf[ƒVƒ‡ƒ“
+                // ãƒãƒªãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³
                 $editor = new Tixee_Image_Editor($info['tmp_name']);
                 if(!$editor->valid())
-                    throw new Exception('‰æ‘œƒtƒ@ƒCƒ‹‚Å‚Í‚ ‚è‚Ü‚¹‚ñB', $this->_codeConf->validate->failed);
+                    throw new Exception('ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«ã§ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚', $this->_codeConf->validate->failed);
                 
-                // ƒtƒ@ƒCƒ‹–¼æ“¾
+                // ãƒ•ã‚¡ã‚¤ãƒ«åå–å¾—
                 $imageName = $info['name'];
- 
-               // ƒŠƒtƒ@ƒNƒ^ƒŠƒ“ƒO-ƒ`ƒPƒbƒg‰æ‘œÅ‘åƒTƒCƒY
+                // ãƒªãƒ•ã‚¡ã‚¯ã‚¿ãƒªãƒ³ã‚°-ãƒã‚±ãƒƒãƒˆç”»åƒæœ€å¤§ã‚µã‚¤ã‚º
                 $editor->resizeSquare(640, 600);
                 $imageBlob = $editor->getImageBlob();
                 
-                // ƒ‚ƒfƒ‹‚Ìì¬
+                // ãƒ¢ãƒ‡ãƒ«ã®ä½œæˆ
                 $tempImage = new \TempImages();
-                // –{“o˜^‚É‚Íg—p‚µ‚È‚¢‚½‚ßˆê•Û‘¶‚Å‚à•Û‘¶‚·‚é•K—v‚È‚©‚Á‚½‚ªAƒJƒ‰ƒ€‚ª‚ ‚é‚Ì‚Åˆê‰‚¢‚ê‚Ä‚¨‚­
+                // æœ¬ç™»éŒ²æ™‚ã«ã¯ä½¿ç”¨ã—ãªã„ãŸã‚ä¸€æ™‚ä¿å­˜ã§ã‚‚ä¿å­˜ã™ã‚‹å¿…è¦ãªã‹ã£ãŸãŒã€ã‚«ãƒ©ãƒ ãŒã‚ã‚‹ã®ã§ä¸€å¿œã„ã‚Œã¦ãŠã
                 $tempImage->setFileName($imageName);
                 $tempImage->setData($imageBlob);
                 $tempImage->setDeleteFlag(false);
                 $tempImage->setCreatedAt(new \Datetime());
                 $tempImage->setCreatedBy($this->auth->uid);
-              
-                // DB•Û‘¶‚Æ”½‰f
+                
+                // DBä¿å­˜ã¨åæ˜ 
                 $this->_em->persist($tempImage);
                 $this->_em->flush();
                 
                 $imageId = $tempImage->getId();
             }
-          
-            // Šù‘¶ˆê•Û‘¶‰æ‘œ‚ª‘¶İ‚·‚éê‡‚Ííœ‚µ‚Ä‚¨‚­
+            
+            // æ—¢å­˜ä¸€æ™‚ä¿å­˜ç”»åƒãŒå­˜åœ¨ã™ã‚‹å ´åˆã¯å‰Šé™¤ã—ã¦ãŠã
             if (!empty($lastImageId) && $lastImageId > 0) {
                 $this->_em->getRepository("TempImages")->deleteTempImage($lastImageId);
             }
@@ -760,108 +684,8 @@ class Backend_TicketController extends Base_Controller_Action
         $this->view->data = json_encode($data);
     }
     
-    
-    /*
-    public function tmpUploadImageAction() {
-    	$imageId = 0;
-    	$type = 0;
-    	$src = "";
-    	$retval = $this->_codeConf->failed;
-    
-    	try {
-    		$front = Zend_Controller_Front::getInstance();
-    		$front->getPlugin('Zend_Layout_Controller_Plugin_Layout')->getLayout()->disableLayout();
-    
-    		// ƒpƒ‰ƒ[ƒ^æ“¾
-    		$req = $this->getRequest();
-    		$params = $req->getParams();
-    		$type = $params["type"];
-    		$lastImageId = null;
-    		switch ($type) {
-    			case 2:
-    				$lastImageId = $params["frontImageId"];
-    				break;
-    			case 3:
-    				$lastImageId = $params["backImageId"];
-    				break;
-    			default:
-    				break;
-    		}
-    
-    		if(empty($this->auth->uid))
-    			throw new Exception('ƒ†[ƒU[‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB', $this->_codeConf->invalid_access);
-    
-    		// ƒtƒ@ƒCƒ‹‚Ìæ“¾
-    		$upload = new Zend_File_Transfer();
-    		$files = $upload->getFileInfo();
-    
-    		// ƒAƒbƒv‰Â”\‚Èƒtƒ@ƒCƒ‹‚Í1‚Â
-    		if(1 != count($files))
-    			throw new Exception('ƒtƒ@ƒCƒ‹‚ÌƒAƒbƒvƒ[ƒh‚É¸”s‚µ‚Ü‚µ‚½B', $this->_codeConf->invalid_access);
-    
-    		$tempImage = null;
-    		foreach($files as $file => $info){
-    			// ‰æ–Ê‚©‚çƒAƒbƒvƒ[ƒh‚³‚ê‚½ƒtƒ@ƒCƒ‹ˆÈŠO‚Í‹–‰Â‚µ‚È‚¢B
-    			if(!$upload->isUploaded($file))
-    				throw new Exception('•s³‚ÈƒAƒbƒvƒ[ƒhsˆ×‚Å‚·B', $this->_codeConf->invalid_access);
-    
-    			// ƒoƒŠƒf[ƒVƒ‡ƒ“
-    			$editor = new Tixee_Image_Editor($info['tmp_name']);
-    			if(!$editor->valid())
-    				throw new Exception('‰æ‘œƒtƒ@ƒCƒ‹‚Å‚Í‚ ‚è‚Ü‚¹‚ñB', $this->_codeConf->validate->failed);
-    
-    			// ƒtƒ@ƒCƒ‹–¼æ“¾
-    			$imageName = $info['name'];
-    			// ƒŠƒtƒ@ƒNƒ^ƒŠƒ“ƒO-ƒ`ƒPƒbƒg‰æ‘œÅ‘åƒTƒCƒY
-    			$editor->resizeSquare(640, 600);
-    			$imageBlob = $editor->getImageBlob();
-    
-    			// ƒ‚ƒfƒ‹‚Ìì¬
-    			$tempImage = new \TempImages();
-    			// –{“o˜^‚É‚Íg—p‚µ‚È‚¢‚½‚ßˆê•Û‘¶‚Å‚à•Û‘¶‚·‚é•K—v‚È‚©‚Á‚½‚ªAƒJƒ‰ƒ€‚ª‚ ‚é‚Ì‚Åˆê‰‚¢‚ê‚Ä‚¨‚­
-    			$tempImage->setFileName($imageName);
-    			$tempImage->setData($imageBlob);
-    			$tempImage->setDeleteFlag(false);
-    			$tempImage->setCreatedAt(new \Datetime());
-    			$tempImage->setCreatedBy($this->auth->uid);
-    
-    			// DB•Û‘¶‚Æ”½‰f
-    			$this->_em->persist($tempImage);
-    			$this->_em->flush();
-    
-    			$imageId = $tempImage->getId();
-    		}
-    
-    		// Šù‘¶ˆê•Û‘¶‰æ‘œ‚ª‘¶İ‚·‚éê‡‚Ííœ‚µ‚Ä‚¨‚­
-    		if (!empty($lastImageId) && $lastImageId > 0) {
-    			$this->_em->getRepository("TempImages")->deleteTempImage($lastImageId);
-    		}
-    		$this->_em->clear();
-    
-    		$src = $this->view->baseUrl("backend/ticket/load-image/imageid/{$imageId}/w/300");
-    		$retval = $this->_codeConf->success;
-    
-    	} catch (Exception $e) {
-    		$current = date('Y-m-d H:i:s');
-    		$logPath = '/tmp/tmpUploadImage.log';
-    		file_put_contents($logPath, "[{$current}] EventController catch\n", FILE_APPEND);
-    		file_put_contents($logPath, "[{$current}] {$e->getMessage()}\n", FILE_APPEND);
-    
-    		$retval = $e->getCode();
-    	}
-    
-    	$data = array(
-    			'result' => $retval,
-    			'src' => $src,
-    			'type' => $type,
-    			'image_id' => $imageId,
-    	);
-    	$this->view->data = json_encode($data);
-    }
-    */
-    
     /**
-     * ˆê•Û‘¶‰æ‘œ’ñ‹Ÿ
+     * ä¸€æ™‚ä¿å­˜ç”»åƒæä¾›
      * 
      * @throws Exception
      */
@@ -873,15 +697,15 @@ class Backend_TicketController extends Base_Controller_Action
 
             $req = $this->getRequest();
             $params = $req->getParams();
-            // ƒCƒxƒ“ƒgid‚Ìæ“¾
+            // ã‚¤ãƒ™ãƒ³ãƒˆidã®å–å¾—
             $id = $params['imageid'];
             $width = $params['w'];
             
             if(empty($id))
-                throw new Exception('ƒCƒxƒ“ƒg‚Ì“Á’è‚ªo—ˆ‚Ü‚¹‚ñB');
+                throw new Exception('ã‚¤ãƒ™ãƒ³ãƒˆã®ç‰¹å®šãŒå‡ºæ¥ã¾ã›ã‚“ã€‚');
             
             if(empty($width) || $width > 640)
-                throw new Exception('‰æ‘œƒTƒCƒY‚Ì“Á’è‚ªo—ˆ‚Ü‚¹‚ñB'); // ƒŠƒtƒ@ƒNƒ^ƒŠƒ“ƒO-ƒƒCƒ“‰æ‘œÅ‘åƒTƒCƒY‚ÅƒuƒƒbƒN
+                throw new Exception('ç”»åƒã‚µã‚¤ã‚ºã®ç‰¹å®šãŒå‡ºæ¥ã¾ã›ã‚“ã€‚'); // ãƒªãƒ•ã‚¡ã‚¯ã‚¿ãƒªãƒ³ã‚°-ãƒ¡ã‚¤ãƒ³ç”»åƒæœ€å¤§ã‚µã‚¤ã‚ºã§ãƒ–ãƒ­ãƒƒã‚¯
             
             $image = $this->_em->getRepository('TempImages')->getTempImage($id);
             if (empty($image))
@@ -892,14 +716,14 @@ class Backend_TicketController extends Base_Controller_Action
             $editor->resizeWidth($width);
             $imageData = $editor->getImageBlob();
             
-            // ƒŒƒXƒ|ƒ“ƒXƒIƒuƒWƒFƒNƒg‚Ìİ’è
+            // ãƒ¬ã‚¹ãƒãƒ³ã‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¨­å®š
             $this->getResponse()
             ->setHeader('Content-Type', 'image/png')
             ->setHeader('Content-Length', strlen($imageData))
             ->setHeader('Last-Modified', gmdate('D, d M Y H:i:s').' GMT')
             ->appendBody($imageData);
         }catch (Exception $e){
-            // ƒŠƒtƒ@ƒNƒ^ƒŠƒ“ƒO-‰æ–Ê‚ÉƒAƒEƒgƒvƒbƒg‚Í‚µ‚È‚¢‚Ì‚ÅA“KØ‚ÈƒGƒ‰[Œ´ˆö‚ÌƒƒMƒ“ƒO
+            // ãƒªãƒ•ã‚¡ã‚¯ã‚¿ãƒªãƒ³ã‚°-ç”»é¢ã«ã‚¢ã‚¦ãƒˆãƒ—ãƒƒãƒˆã¯ã—ãªã„ã®ã§ã€é©åˆ‡ãªã‚¨ãƒ©ãƒ¼åŸå› ã®ãƒ­ã‚®ãƒ³ã‚°
             $this->_errorMessages['title'] = $this->_title[$req->getActionName()]['error'];
             $this->_errorMessages['main'][] = sprintf('<p>%s</p>', $e->getMessage());
             $this->view->assign('errorMessages', $this->_errorMessages);
@@ -908,31 +732,31 @@ class Backend_TicketController extends Base_Controller_Action
     }
     
     /**
-     *  ‰æ‘œ‚Ì–{“o˜^‚Æˆê•Û‘¶‰æ‘œ‚Ìíœ
+     *  ç”»åƒã®æœ¬ç™»éŒ²ã¨ä¸€æ™‚ä¿å­˜ç”»åƒã®å‰Šé™¤
      *  
-     *  @param \Ticket $ticket ƒ`ƒPƒbƒg
-     *  @param \TempImages tmpImage ‰æ‘œˆê•Û‘¶
-     *  @param int type ‰æ‘œí•Ê 1:ƒƒCƒ“ 2:‚à‚¬‚è‘O 3:‚à‚¬‚èŒã
+     *  @param \Ticket $ticket ãƒã‚±ãƒƒãƒˆ
+     *  @param \TempImages tmpImage ç”»åƒä¸€æ™‚ä¿å­˜
+     *  @param int type ç”»åƒç¨®åˆ¥ 1:ãƒ¡ã‚¤ãƒ³ 2:ã‚‚ãã‚Šå‰ 3:ã‚‚ãã‚Šå¾Œ
      *  @param bigint $uid
-     *  @param bool isCommit DB‚É‘‚«‚Şê‡‚ÍtrueA‚»‚êˆÈŠO‚Ífalse
+     *  @param bool isCommit DBã«æ›¸ãè¾¼ã‚€å ´åˆã¯trueã€ãã‚Œä»¥å¤–ã¯false
      */
     private function _saveImage($ticket, $tmpImageId, $type, $uid, $isCommit = true) {
         $ti = $this->_em->getRepository('TempImages');
         $tmpImage = $ti->getTempImage($tmpImageId, true);
         
         if (empty($tmpImage))
-            throw new \Exception('ƒAƒbƒvƒ[ƒh‰æ‘œ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB');
+            throw new \Exception('ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ç”»åƒãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚');
         
         $image = $this->_em->getRepository('TicketImages')
         ->findOneBy(array('ticket' => $ticket->getId(), 'deleteFlag' => '0', 'type' => $type));
         if (empty($image)) {
-            // V‹K‘Î‰  
+            // æ–°è¦å¯¾å¿œ  
             $image = new \TicketImages();
             $image->setType($type);
-            $image->setGdImagetype(0); // g‚í‚ê‚Ä‚¢‚È‚¢
-            $image->setX(0); // g‚í‚ê‚Ä‚¢‚È‚¢
-            $image->setY(0); // g‚í‚ê‚Ä‚¢‚È‚¢
-            $image->setStatus(1); // g‚í‚ê‚Ä‚¢‚È‚¢
+            $image->setGdImagetype(0); // ä½¿ã‚ã‚Œã¦ã„ãªã„
+            $image->setX(0); // ä½¿ã‚ã‚Œã¦ã„ãªã„
+            $image->setY(0); // ä½¿ã‚ã‚Œã¦ã„ãªã„
+            $image->setStatus(1); // ä½¿ã‚ã‚Œã¦ã„ãªã„
             $image->setDeleteFlag(0);
             $image->setCreatedAt(new \Datetime());
             $image->setCreatedBy($uid);
@@ -951,100 +775,102 @@ class Backend_TicketController extends Base_Controller_Action
         if ($isCommit)
             $this->_em->flush();
     }
-	
+
     /**
-     *  ‰æ‘œ‚Ì–{“o˜^‚Æˆê•Û‘¶‰æ‘œ‚Ìíœ
-     *
-     *  @param \Ticket $ticket ƒ`ƒPƒbƒg
-     *  @param string title ‰æ‘œƒ^ƒCƒgƒ‹
-     *  @param string prob Probability
-     *  @param \TempImages tmpImage ‰æ‘œˆê•Û‘¶
-     *  @param int type ‰æ‘œí•Ê 1:ƒƒCƒ“ 2:‚à‚¬‚è‘O 3:‚à‚¬‚èŒã
+     *  ç”»åƒã®æœ¬ç™»éŒ²ã¨ä¸€æ™‚ä¿å­˜ç”»åƒã®å‰Šé™¤
+     *  
+     *  @param \Ticket $ticket ãƒã‚±ãƒƒãƒˆ
+     *  @param string title ç”»åƒã‚¿ã‚¤ãƒˆãƒ« 
+     *  @param string prob Probability 
+     *  @param \TempImages tmpImage ç”»åƒä¸€æ™‚ä¿å­˜
+     *  @param int type ç”»åƒç¨®åˆ¥ 1:ãƒ¡ã‚¤ãƒ³ 2:ã‚‚ãã‚Šå‰ 3:ã‚‚ãã‚Šå¾Œ
      *  @param bigint $uid
-     *  @param bool isCommit DB‚É‘‚«‚Şê‡‚ÍtrueA‚»‚êˆÈŠO‚Ífalse
+     *  @param bool isCommit DBã«æ›¸ãè¾¼ã‚€å ´åˆã¯trueã€ãã‚Œä»¥å¤–ã¯false
      */
     private function _saveCollectionImage($ticket, $title, $prob, $tmpImageId, $no, $uid, $isCommit = true) {
-    	// Šm—¦A‰æ‘œƒ^ƒCƒgƒ‹ƒf[ƒ^‚Ì‚Ç‚¿‚ç‚©‚ª‹ó‚¾‚Á‚½ê‡‰½‚à‚µ‚È‚¢
-    	if( empty($title) or empty($prob) ){ return; }
-    
-    	$image = $this->_em->getRepository('TicketCollectionImage')->findBy(array('ticket' => $ticket->getId()));
-    	// “o˜^ƒCƒ[ƒW‚æ‚è‚àA”‚ª‘½‚­ƒCƒ[ƒW‚ª‹ó‚Å‚È‚¢ê‡
-    	if (count($image) < $no + 1 and !empty($tmpImageId)) {
-    		// V‹K‘Î‰
-    		$image = new \TicketCollectionImage();
-    		$image->setGdImagetype(0); // g‚í‚ê‚Ä‚¢‚È‚¢
-    	}else{
-    		foreach($image as $image_no => $atom){
-    			if($image_no == $no){
-    				$image = $atom;
-    				break;
-    			}
-    		}
-    	}
-    
-    	$image->setTicket($ticket);
-    	$image->setTitle($title);
-    	$image->setProbability($prob);
-    	if(!empty($tmpImageId)){
-    		$tmpImage = $this->_em->getRepository('TempImages')->getTempImage($tmpImageId, true);
-    		$image->setData($tmpImage->getData());
-    		$this->_em->getRepository('TempImages')->deleteTempImage($tmpImageId);
-    	}
-    
-    	$this->_em->persist($image);
-    	if ($isCommit)
-    		$this->_em->flush();
+        // ç¢ºç‡ã€ç”»åƒã‚¿ã‚¤ãƒˆãƒ«ãƒ‡ãƒ¼ã‚¿ã®ã©ã¡ã‚‰ã‹ãŒç©ºã ã£ãŸå ´åˆä½•ã‚‚ã—ãªã„
+        if( empty($title) or empty($prob) ){ return; }
+
+        $image = $this->_em->getRepository('TicketCollectionImage')->findBy(array('ticket' => $ticket->getId()));
+        // ç™»éŒ²ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚ˆã‚Šã‚‚ã€æ•°ãŒå¤šãã‚¤ãƒ¡ãƒ¼ã‚¸ãŒç©ºã§ãªã„å ´åˆ
+        if (count($image) < $no + 1 and !empty($tmpImageId)) {
+            // æ–°è¦å¯¾å¿œ  
+            $image = new \TicketCollectionImage();
+            $image->setGdImagetype(0); // ä½¿ã‚ã‚Œã¦ã„ãªã„
+        }else{
+            foreach($image as $image_no => $atom){
+                if($image_no == $no){
+                      $image = $atom;
+                      break;
+                }
+            }
+        }
+
+        $image->setTicket($ticket);
+        $image->setTitle($title);
+        $image->setProbability($prob);
+        if(!empty($tmpImageId)){
+		$tmpImage = $this->_em->getRepository('TempImages')->getTempImage($tmpImageId, true);
+		$image->setData($tmpImage->getData());
+		$this->_em->getRepository('TempImages')->deleteTempImage($tmpImageId);
+        }
+
+        $this->_em->persist($image);
+        if ($isCommit)
+            $this->_em->flush();
     }
+    
     /**
-     * tsvƒAƒNƒVƒ‡ƒ“
+     * tsvã‚¢ã‚¯ã‚·ãƒ§ãƒ³
      *
-     * ƒ`ƒPƒbƒgŠÖ˜A‚Ìƒf[ƒ^‚ğTSVƒCƒ“ƒ|[ƒg‚·‚é‰æ–Ê‚ğo—Í‚·‚éƒAƒNƒVƒ‡ƒ“B
-     * È‘®ƒf[ƒ^‚Ìæ‚è‚İ‚É‘Î‰‚·‚éB
+     * ãƒã‚±ãƒƒãƒˆé–¢é€£ã®ãƒ‡ãƒ¼ã‚¿ã‚’TSVã‚¤ãƒ³ãƒãƒ¼ãƒˆã™ã‚‹ç”»é¢ã‚’å‡ºåŠ›ã™ã‚‹ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã€‚
+     * å¸­å±ãƒ‡ãƒ¼ã‚¿ã®å–ã‚Šè¾¼ã¿ã«å¯¾å¿œã™ã‚‹ã€‚
      *
      * @access public
      */
     public function tsvAction() {
-    	// ƒtƒH[ƒ€¶¬
+    	// ãƒ•ã‚©ãƒ¼ãƒ ç”Ÿæˆ
     	$aname =& $this->actionName;
     	$formSeatAttr = $this->_createZendFormIni("{$aname}-seatattribute");
     
-    	// form‚ÉƒCƒxƒ“ƒgƒZƒbƒgID‚ğ“n‚·
+    	// formã«ã‚¤ãƒ™ãƒ³ãƒˆã‚»ãƒƒãƒˆIDã‚’æ¸¡ã™
     	$ticketId = $this->paramHash['ticketId'];
     	$formSeatAttr->getElement('ticketId')->setValue($ticketId);
     
-    	// ƒeƒ“ƒvƒŒ•Ï”ƒZƒbƒg
+    	// ãƒ†ãƒ³ãƒ—ãƒ¬å¤‰æ•°ã‚»ãƒƒãƒˆ
     	$this->view->formSeatAttribute = $formSeatAttr;
     
     	$this->view->pgurl = $this->_createControllerUrl('tsv-progress', '', '');
     	$this->view->title = $this->_title[$aname]['success'];
     }
+    
     /**
-     * tsv-eventƒAƒNƒVƒ‡ƒ“
+     * tsv-eventã‚¢ã‚¯ã‚·ãƒ§ãƒ³
      *
-     * ƒCƒxƒ“ƒgƒZƒbƒgŠÖ˜A‚ÌƒCƒxƒ“ƒgƒf[ƒ^‚ğTSVƒCƒ“ƒ|[ƒg‚·‚éƒAƒNƒVƒ‡ƒ“B
+     * ã‚¤ãƒ™ãƒ³ãƒˆã‚»ãƒƒãƒˆé–¢é€£ã®ã‚¤ãƒ™ãƒ³ãƒˆãƒ‡ãƒ¼ã‚¿ã‚’TSVã‚¤ãƒ³ãƒãƒ¼ãƒˆã™ã‚‹ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã€‚
      *
      * @access public
      */
     public function tsvSeatattributeAction() {
-    	$this->_saveTsvData('seatAttribute', 'È‘®î•ñ');
+    	$this->_saveTsvData('seatAttribute', 'å¸­å±æƒ…å ±');
     }
     
     /**
-     * TSVƒtƒ@ƒCƒ‹‚ÌDB•Û‘¶
+     * TSVãƒ•ã‚¡ã‚¤ãƒ«ã®DBä¿å­˜
      *
-     * TSVƒtƒ@ƒCƒ‹‚ğƒf[ƒ^‚É“WŠJ‚µ‚ÄDB‚ÖŠi”[‚·‚éB
+     * TSVãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ‡ãƒ¼ã‚¿ã«å±•é–‹ã—ã¦DBã¸æ ¼ç´ã™ã‚‹ã€‚
      *
      * @access private
      *
-     * @param string $type  TSVˆ—ƒ^ƒCƒv
-     * @param string $title ˆ—Š®—¹‚Ìƒ^ƒCƒgƒ‹w’è
+     * @param string $type  TSVå‡¦ç†ã‚¿ã‚¤ãƒ—
+     * @param string $title å‡¦ç†å®Œäº†æ™‚ã®ã‚¿ã‚¤ãƒˆãƒ«æŒ‡å®š
      */
     private function _saveTsvData($type, $title) {
     	try {
-    		// ƒpƒ‰ƒ[ƒ^æ“¾
+    		// ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿å–å¾—
     		$form = $this->_createZendFormIni($this->actionName);
     
-    		// CSVƒAƒbƒvƒ[ƒhˆ—
+    		// CSVã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰å‡¦ç†
     		if (!$this->getRequest()->isPost()) {
     			throw new Exception('Unsupported HTTP Method');
     		}
@@ -1057,42 +883,42 @@ class Backend_TicketController extends Base_Controller_Action
     			throw new Exception($msg);
     		}
     
-    		// TSVƒ`ƒFƒbƒN
+    		// TSVãƒã‚§ãƒƒã‚¯
     		$tsvAdapter = $form->getElement('tsv')->getTransferAdapter();
     		$tsvInfo    = $tsvAdapter->getFileInfo('tsv');
     		$tsvInfo    = $tsvInfo['tsv'];
     		$tsvWorker  = new Tixee_Tsv_Import_SeatAttribute($this->_em);
     
     		if (!$tsvWorker->isValidTsvType($tsvInfo['type'])) {
-    			throw new Exception("—˜—p‚Å‚«‚È‚¢ƒtƒ@ƒCƒ‹ƒ^ƒCƒv‚Å‚·i{$tsvInfo['type']}j");
+    			throw new Exception("åˆ©ç”¨ã§ããªã„ãƒ•ã‚¡ã‚¤ãƒ«ã‚¿ã‚¤ãƒ—ã§ã™ï¼ˆ{$tsvInfo['type']}ï¼‰");
     		}
     
-    		// •K—v‚Èî•ñ‚ğDBæ“¾
+    		// å¿…è¦ãªæƒ…å ±ã‚’DBå–å¾—
     		$em =& $this->_em;
     
     		$ticket  = $em->getRepository('Ticket')->findOneBy(array('id' => $this->paramHash['ticketId']));
     		if (empty($ticket)) {
-    			throw new Exception('ƒ`ƒPƒbƒg‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB');
+    			throw new Exception('ãƒã‚±ãƒƒãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚');
     		}
     
     		$user = $em->getRepository('User')->findOneBy(array('id' => $this->auth->uid));
     		if (empty($user)) {
-    			throw new Exception('“o˜^ÒiƒƒOƒCƒ“’†j‚Ìƒ†[ƒU[î•ñ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB');
+    			throw new Exception('ç™»éŒ²è€…ï¼ˆãƒ­ã‚°ã‚¤ãƒ³ä¸­ï¼‰ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼æƒ…å ±ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚');
     		}
     
-    		// ƒCƒxƒ“ƒgƒf[ƒ^“o˜^
+    		// ã‚¤ãƒ™ãƒ³ãƒˆãƒ‡ãƒ¼ã‚¿ç™»éŒ²
     		$method = 'import' . ucfirst(strtolower($type));
     		if (!method_exists($tsvWorker, $method)) {
-    			throw new Exception('ƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚È‚¢ˆ—ƒ^ƒCƒv‚Å‚·B');
+    			throw new Exception('ã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ãªã„å‡¦ç†ã‚¿ã‚¤ãƒ—ã§ã™ã€‚');
     		}
     
     		$ret = $tsvWorker->$method($ticket, $user, $tsvInfo['tmp_name']);
-    		@unlink($tsvInfo['tmp_name']); // ƒSƒ~‘|œ
+    		@unlink($tsvInfo['tmp_name']); // ã‚´ãƒŸæƒé™¤
     
-    		// Œ‹‰Êo—Í
+    		// çµæœå‡ºåŠ›
     		$msg = sprintf(
-    				'%1$s“o˜^Š®—¹F %1$s‘”=%2$d, “o˜^=%3$d, ¸”s=%4$d',
-    				($title != '') ? $title : 'ƒf[ƒ^',
+    				'%1$sç™»éŒ²å®Œäº†ï¼š %1$sç·æ•°=%2$d, ç™»éŒ²=%3$d, å¤±æ•—=%4$d',
+    				($title != '') ? $title : 'ãƒ‡ãƒ¼ã‚¿',
     				$ret['total'],
     				$ret['success'],
     				$ret['total'] - $ret['success']
@@ -1100,19 +926,19 @@ class Backend_TicketController extends Base_Controller_Action
     		if(!empty($ret['error'])) {
     			$msg .= "<br />";
     			foreach ($ret['error'] as $error) {
-    				$msg .= "<b>{$error['line']}s–Ú : {$error['error']}</b><br />";
+    				$msg .= "<b>{$error['line']}è¡Œç›® : {$error['error']}</b><br />";
     			}
     		}
     	}
     	catch (Exception $e) {
-    		$msg = 'CSV“o˜^‚É¸”sF ' . $e->getMessage();
+    		$msg = 'CSVç™»éŒ²ã«å¤±æ•—ï¼š ' . $e->getMessage();
     	}
     
-    	// ƒŒƒ“ƒ_ƒŠƒ“ƒO’â~
+    	// ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°åœæ­¢
     	$this->_helper->removeHelper('viewRenderer');
     	$this->_helper->layout->disableLayout();
     
-    	// ƒAƒbƒvƒ[ƒhŒ‹‰Ê‚ğ‰“š
+    	// ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰çµæœã‚’å¿œç­”
     	$res = $this->getResponse();
     	$res->setHeader('Content-Type', 'text/plain');
     	$res->setHeader('Content-Length', strlen($msg));
@@ -1123,9 +949,9 @@ class Backend_TicketController extends Base_Controller_Action
     }
     
     /**
-     * seatattrƒAƒNƒVƒ‡ƒ“
+     * seatattrã‚¢ã‚¯ã‚·ãƒ§ãƒ³
      *
-     * ÀÈî•ñ‚ÌƒtƒH[ƒ}ƒbƒg‚ğİ’è‚·‚éƒAƒNƒVƒ‡ƒ“B
+     * åº§å¸­æƒ…å ±ã®ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚’è¨­å®šã™ã‚‹ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã€‚
      *
      * @access public
      */
@@ -1135,7 +961,7 @@ class Backend_TicketController extends Base_Controller_Action
     	$ticket = $this->_em->getRepository('Ticket')
     	->findOneBy(array('id' => $ticketId, 'deleteFlag' => '0'));
     	if (empty($ticket)){
-    		$e =  new Exception('<br />Eƒ`ƒPƒbƒgî•ñ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ');
+    		$e =  new Exception('<br />ãƒ»ãƒã‚±ãƒƒãƒˆæƒ…å ±ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“');
     		$this->_errorMessages['title'] = $this->_title[$this->actionName]['error'];
     		$this->_errorMessages['main'][] = sprintf('<p>%s</p>', $e->getMessage());
     		$this->view->title = $this->_title[$this->actionName]['error'];
@@ -1143,28 +969,28 @@ class Backend_TicketController extends Base_Controller_Action
     		throw $e;
     	}
     
-    	// ƒtƒH[ƒ€¶¬
+    	// ãƒ•ã‚©ãƒ¼ãƒ ç”Ÿæˆ
     	$form = $this->_createZendFormIni($this->actionName);
     
-    	// ƒeƒ“ƒvƒŒ•Ï”ƒZƒbƒg
+    	// ãƒ†ãƒ³ãƒ—ãƒ¬å¤‰æ•°ã‚»ãƒƒãƒˆ
     	$this->view->formSeatAttribute = $form;
     
     	if($this->request->isPost() && $form->isValidPartial($this->paramHash)) {
-    		// •Û‘¶ƒf[ƒ^‚ÌƒZƒbƒg
+    		// ä¿å­˜ãƒ‡ãƒ¼ã‚¿ã®ã‚»ãƒƒãƒˆ
     		$now = new \Datetime();
-    		// ƒf[ƒ^XV
+    		// ãƒ‡ãƒ¼ã‚¿æ›´æ–°
     		$ticket->setSeatAttrRegexp($this->paramHash['seatFormat']);
     		$ticket->setUpdatedAt($now);
     		$ticket->setUpdatedBy($this->auth->uid);
     
-    		$this->_em->persist($ticket); // persistˆ—‚Ì‚¨‚Ü‚¶‚È‚¢
-    		$this->_em->flush(); // DB”½‰f(ÀÛ‚Ìupdate)
+    		$this->_em->persist($ticket); // persistå‡¦ç†ã®ãŠã¾ã˜ãªã„
+    		$this->_em->flush(); // DBåæ˜ (å®Ÿéš›ã®update)
     
-    		// Š®—¹ƒƒbƒZ[ƒW‚ÌƒZƒbƒg
+    		// å®Œäº†ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ã‚»ãƒƒãƒˆ
     		$this->view->completeMessage = $this->viewMessages['complete']['edit'];
     	}
     	elseif($this->request->isGet()) {
-    		// ‰‰ñƒAƒNƒZƒX‚Éƒ`ƒPƒbƒgî•ñ‚ª‚ ‚ê‚Î“Ç‚İo‚µ‚ÄƒfƒtƒHƒ‹ƒg’l‚Æ‚·‚é
+    		// åˆå›ã‚¢ã‚¯ã‚»ã‚¹æ™‚ã«ãƒã‚±ãƒƒãƒˆæƒ…å ±ãŒã‚ã‚Œã°èª­ã¿å‡ºã—ã¦ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã¨ã™ã‚‹
     		$defaultHash = array();
     		$seatFormat = $ticket->getSeatAttrRegexp();
     		if (empty($seatFormat)) {
@@ -1172,16 +998,15 @@ class Backend_TicketController extends Base_Controller_Action
     		}
     		$defaultHash['seatFormat'] = $seatFormat;
     
-    		// ƒfƒtƒHƒ‹ƒg’l‚ÌƒZƒbƒg
+    		// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã®ã‚»ãƒƒãƒˆ
     		$form->setDefaults($defaultHash);
     
     	}
     
-    	// view‚Ö‚ÌƒZƒbƒg
+    	// viewã¸ã®ã‚»ãƒƒãƒˆ
     	$this->view->form = $form;
     	$this->view->ticketId = $this->paramHash['ticketId'];
     	$this->view->title = $this->_title[$this->actionName]['success'];
     }
- 
 }
 
