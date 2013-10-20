@@ -616,7 +616,10 @@ class Backend_TicketController extends Base_Controller_Action
             $type = $params["type"];
             $lastImageId = null;
             switch ($type) {
-                case 2:
+            	case 4:
+            		$lastImageId = $params["lockImageId"];
+            		break;
+            	case 2:
                     $lastImageId = $params["frontImageId"];
                     break;
                 case 3:
