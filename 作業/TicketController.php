@@ -242,6 +242,7 @@ class Backend_TicketController extends Base_Controller_Action
         ->andWhere('sc.paymentStatus IS NULL')
         ->andWhere('sc.expiryDate >= ?2')
         ->andWhere('te.deleteFlag >= ?3')
+        
         ->setParameter(1, $ticket)
         ->setParameter(2, $nowDateTime)
         ->setParameter(3, 0)
@@ -401,6 +402,7 @@ class Backend_TicketController extends Base_Controller_Action
             $defaulutHash = $this->paramHash;
             $defaultHash['frontImageId'] = null;
             $defaultHash['backImageId'] = null;
+            $defaultHash['lockImageId'] = null;
             $form->setDefaults($defaultHash);
         }elseif($this->request->isGet()){
             // 初回アクセス時にチケット情報があれば読み出してデフォルト値とする
@@ -616,12 +618,12 @@ class Backend_TicketController extends Base_Controller_Action
             $type = $params["type"];
             $lastImageId = null;
             switch ($type) {
-            	case 4:
-            		$lastImageId = $params["lockImageId"];
-            		break;
             	case 2:
                     $lastImageId = $params["frontImageId"];
                     break;
+                case 4:
+                   	$lastImageId = $params["lockImageId"];
+                   	break;
                 case 3:
                     foreach($params as $key => $val){
                        if( preg_match('/backImageId/', $key)){
@@ -798,11 +800,11 @@ class Backend_TicketController extends Base_Controller_Action
     }
 
     /**
-     *  画像の本登録と一時保存画像の削除
+     *  コレクション画像の本登録と一時保存画像の削除
      *  
      *  @param \Ticket $ticket チケット
      *  @param string title 画像タイトル 
-     *  @param string prob Probability 
+     *  @param string prob 出現確率
      *  @param \TempImages tmpImage 画像一時保存
      *  @param int type 画像種別 1:メイン 2:もぎり前 3:もぎり後
      *  @param bigint $uid
