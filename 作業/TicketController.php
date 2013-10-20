@@ -243,14 +243,14 @@ class Backend_TicketController extends Base_Controller_Action
         ->getSingleScalarResult();
         
         // 購入済チケットがある場合もチケット情報を編集できるように仕様変更
-        /*
+        
         // 購入済チケットがある場合、編集できなくする
-        if($ticket->getQuantity() != $ticket->getTicketStock()->getStock() or $ticketEventCount > 0){
-
-            $this->view->editFlag = true;
-            return true;
-        }
-        */
+        //if($ticket->getQuantity() != $ticket->getTicketStock()->getStock() or $ticketEventCount > 0){
+		//
+        //    $this->view->editFlag = true;
+        //    return true;
+        //}
+        
 
         // POST値がセットされていて、validateクリア
         if($this->request->isPost() && $form->isValidPartial($this->paramHash)){
