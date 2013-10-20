@@ -233,6 +233,12 @@ class Backend_TicketController extends Base_Controller_Action
         ->leftJoin('te.settlementEvent', 'se')
         ->leftJoin('se.settlementConvenience', 'sc')
         ->andWhere('t.id = ?1')
+        
+        //new
+        ->andWhere('te.deleteFlag = 0')
+        ->andWhere('se.deleteFlag = 0')
+        //new
+        
         ->andWhere('sc.paymentStatus IS NULL')
         ->andWhere('sc.expiryDate >= ?2')
         ->andWhere('te.deleteFlag >= ?3')
@@ -347,16 +353,25 @@ class Backend_TicketController extends Base_Controller_Action
             $this->view->assign('ticketUpdatedAt', $updatedAt);
             
             // 画像存在取得
+            /*
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
                     'type'=> '2',
                     'deleteFlag' => '0'));
             $frontImageId = (empty($image))? '' : $image->getId();
+            */
+            
+            $ti = $this->_em->getRepository('TicketImages');
+            $image = $ti->findOneBy(array(
+            		'ticket' => $ticket->getId(),
+            		'type'=> '2',
+            		'deleteFlag' => '0'));
+            $frontImageId = (empty($image))? '' : $image->getId();
             
             // 画像存在取得
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
-                    'type'=> '2',
+                    'type'=> '3',
                     'deleteFlag' => '0'));
             $backImageId = (empty($image))? '' : $image->getId();
 
@@ -462,8 +477,8 @@ class Backend_TicketController extends Base_Controller_Action
         $this->view->ticketId = $this->paramHash['ticketId'];
         $this->view->title = $this->_title[$this->actionName]['success'];
     }
-
-
+	
+    	
     /**
      * チケット情報詳細
      */
