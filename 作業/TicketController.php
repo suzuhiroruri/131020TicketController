@@ -254,12 +254,12 @@ class Backend_TicketController extends Base_Controller_Action
 
         // POST値がセットされていて、validateクリア
         if($this->request->isPost() && $form->isValidPartial($this->paramHash)){
-            /**
-             * 背面広告URLのバリデーション added by matsui
-             *
-             * http://またはhttps://で始まるURLで始まる文字列
-             * もしくは空文字であれば許容する
-             */
+            //
+             // 背面広告URLのバリデーション added by matsui
+             //
+             // http://またはhttps://で始まるURLで始まる文字列
+             // もしくは空文字であれば許容する
+             //
             $backAdUrl = $this->paramHash['backAdUrl'];
             if (!preg_match('/^https?:\/\/.+/i', $backAdUrl)) {
                 if (empty($backAdUrl)) {
