@@ -1,4 +1,3 @@
-
 <?php
 
 require_once 'BaseController.php';
@@ -39,6 +38,10 @@ class Backend_TicketController extends Base_Controller_Action
         if(isset($this->paramHash['userId'])){
                 // サブメニューのセット
                 $this->view->submenu = 'user-submenu.phtml';
+        }
+        //左側の赤色の「チケット管理追加」
+        elseif(isset($this->paramHash['ticketId'])) {
+        	$this->view->submenu = 'ticket-submenu.phtml';
         }
     }
 
