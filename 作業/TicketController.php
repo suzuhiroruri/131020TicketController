@@ -352,30 +352,30 @@ class Backend_TicketController extends Base_Controller_Action
                 $updatedAt = $ticket->getCreatedAt();
             $this->view->assign('ticketUpdatedAt', $updatedAt);
             
-            // 画像存在取得
-            /*
+            //表画像存在取得
+            
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
                     'type'=> '2',
                     'deleteFlag' => '0'));
             $frontImageId = (empty($image))? '' : $image->getId();
-            */
             
+            /*
             $ti = $this->_em->getRepository('TicketImages');
             $image = $ti->findOneBy(array(
             		'ticket' => $ticket->getId(),
             		'type'=> '2',
             		'deleteFlag' => '0'));
             $frontImageId = (empty($image))? '' : $image->getId();
-            
-            // 画像存在取得
+            */
+            //裏画像存在取得
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
                     'type'=> '3',
                     'deleteFlag' => '0'));
             $backImageId = (empty($image))? '' : $image->getId();
 
-            // 画像存在取得
+            //ロック画像存在取得
             $image = $this->_em->getRepository('TicketImages')->findOneBy(array(
                     'ticket' => $ticket->getId(),
                     'type'=> '4',
@@ -383,7 +383,7 @@ class Backend_TicketController extends Base_Controller_Action
             $lockImageId = (empty($image))? '' : $image->getId();
 
 
-            // 背景画像
+            //コレクション画像取得画像
             $images = $this->_em->getRepository('TicketCollectionImage')->findBy(array(
                     'ticket' => $ticket->getId(),
                     ));
